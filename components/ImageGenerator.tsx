@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { generateImage } from '../services/geminiService';
 import LoadingSpinner from './LoadingSpinner';
@@ -22,8 +23,8 @@ const MALE_HAIRSTYLES: Hairstyle[] = [
     { name: "Quiff", description: "Messier than a pompadour." },
     { name: "Buzz Cut", description: "Ultra-short and uniform." },
     { name: "Slicked Back", description: "Classic and sophisticated." },
-    { name: "Man Bun", description: "Hair tied in a knot." },
-    { name: "Long and Wavy", description: "Natural, flowing locks." },
+    { name: "Faux Hawk", description: "Spiky top, not a full mohawk." },
+    { name: "Flowing Layered", description: "Full, airy layers with lift and bounce" },
 ];
 
 const FEMALE_HAIRSTYLES: Hairstyle[] = [
