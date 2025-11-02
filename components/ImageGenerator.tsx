@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { generateImage } from '../services/geminiService';
 import LoadingSpinner from './LoadingSpinner';
@@ -146,6 +145,35 @@ const ImageGenerator: React.FC = () => {
         setError(null);
     };
 
+    const handleShare = async (imageUrl: string, style: string) => {
+        if (!navigator.share) {
+            alert("Sharing is not supported on this browser.");
+            return;
+        }
+
+        try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const filename = `hairstyle-ai-studio-${style.toLowerCase().replace(/\s+/g, '-')}.png`;
+            const file = new File([blob], filename, { type: blob.type });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: 'Check out my new AI hairstyle!',
+                    text: `I used Hairstyle AI Studio to try out the "${style}" look.`,
+                });
+            } else {
+                alert("Sharing files is not supported on this browser.");
+            }
+        } catch (error) {
+            console.error('Error sharing:', error);
+            if ((error as Error).name !== 'AbortError') {
+                alert('An error occurred while trying to share the image.');
+            }
+        }
+    };
+
     const hairstyleList = selectedGender === 'male' ? MALE_HAIRSTYLES : FEMALE_HAIRSTYLES;
     const canGenerate = !isLoading && uploadedFile && selectedHairstyles.length > 0;
 
@@ -168,17 +196,29 @@ const ImageGenerator: React.FC = () => {
                          <div key={style} className="space-y-2 text-center">
                             <img src={url} alt={`Generated hairstyle: ${style}`} className="rounded-lg w-full h-auto object-cover" />
                             <p className="font-semibold">{style}</p>
-                            <a
-                                href={url}
-                                download={`hairstyle-ai-studio-${style.toLowerCase().replace(/\s+/g, '-')}.png`}
-                                className="inline-flex items-center justify-center gap-2 mt-1 py-2 px-4 bg-green-600 hover:bg-green-700 rounded-lg font-semibold text-white text-sm transition-all duration-300 shadow-md"
-                                aria-label={`Download image with ${style} hairstyle`}
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                <span>Download</span>
-                            </a>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-1">
+                                <a
+                                    href={url}
+                                    download={`hairstyle-ai-studio-${style.toLowerCase().replace(/\s+/g, '-')}.png`}
+                                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-2 px-4 bg-green-600 hover:bg-green-700 rounded-lg font-semibold text-white text-sm transition-all duration-300 shadow-md"
+                                    aria-label={`Download image with ${style} hairstyle`}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    <span>Download</span>
+                                </a>
+                                 <button
+                                    onClick={() => handleShare(url, style)}
+                                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-2 px-4 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold text-white text-sm transition-all duration-300 shadow-md"
+                                    aria-label={`Share image with ${style} hairstyle`}
+                                >
+                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6.35l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.35a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                                    </svg>
+                                    <span>Share</span>
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
